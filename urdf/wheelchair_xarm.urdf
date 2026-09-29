@@ -273,106 +273,42 @@
       </geometry>
     </collision>
   </link>
-  <!--
-  Lidar sensors: box 0.065 x 0.073 x 0.06 m, mass 1 kg.
-  Ixx = m/12*(y^2+z^2) = 1/12*(0.005329+0.003600) = 0.000744 kg.m^2
-  Iyy = m/12*(x^2+z^2) = 1/12*(0.004225+0.003600) = 0.000652 kg.m^2
-  Izz = m/12*(x^2+y^2) = 1/12*(0.004225+0.005329) = 0.000796 kg.m^2
--->
-  <link name="laser_left">
-    <inertial>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <mass value="1.0"/>
-      <inertia ixx="0.000744" ixy="0.0" ixz="0.0" iyy="0.000652" iyz="0.0" izz="0.000796"/>
-    </inertial>
-    <visual>
-      <origin xyz="0 0 0"/>
-      <geometry>
-        <box size="0.065 0.073 0.06"/>
-      </geometry>
-    </visual>
-    <collision>
-      <origin xyz="0 0 0"/>
-      <geometry>
-        <box size="0.065 0.073 0.06"/>
-      </geometry>
-    </collision>
-  </link>
-  <gazebo reference="laser_left">
-    <material>Gazebo/Blue</material>
-  </gazebo>
-  <link name="laser_right">
-    <inertial>
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <mass value="1.0"/>
-      <inertia ixx="0.000744" ixy="0.0" ixz="0.0" iyy="0.000652" iyz="0.0" izz="0.000796"/>
-    </inertial>
-    <visual>
-      <origin xyz="0 0 0"/>
-      <geometry>
-        <box size="0.065 0.073 0.06"/>
-      </geometry>
-    </visual>
-    <collision>
-      <origin xyz="0 0 0"/>
-      <geometry>
-        <box size="0.065 0.073 0.06"/>
-      </geometry>
-    </collision>
-  </link>
-  <gazebo reference="laser_right">
-    <material>Gazebo/Blue</material>
-  </gazebo>
   <joint name="Lip_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0.58288042351 -0.135  0.14078186452388763"/>
     <parent link="base_link"/>
     <child link="lip_1"/>
   </joint>
-  <!-- Front wheels: omnidirectional — spin freely around the axle (Y-axis).
-     Low damping, no friction limit. The omni lateral-slip behaviour is
-     handled by setting near-zero lateral friction in the MuJoCo model. -->
-  <joint name="FR_joint" type="continuous">
+  <!-- Front wheels: free-spinning omnidirectional casters (their own lateral
+     slip is a MuJoCo-model concern, not something the planner commands;
+     the vehicle's own translation is still set by the two rear diff-drive
+     wheels below, so the chassis itself has no lateral DOF).
+     Fixed rather than continuous here because this description package is
+     display/reference only (no physics): a fixed joint always has a valid
+     TF with no /joint_states source needed. Isaac Sim physics uses the
+     separate wheelchair_xarm_isaac*.urdf variants, not this file. -->
+  <joint name="FR_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0.53412685915 -0.27255433797836304  0.12812547385692596"/>
     <parent link="base_link"/>
     <child link="front_right_1"/>
-    <axis xyz="0 1 0"/>
-    <dynamics damping="0.05" friction="0.0"/>
   </joint>
-  <joint name="FL_joint" type="continuous">
+  <joint name="FL_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0.53412685915 0.27255433797836304  0.12812547385692596"/>
     <parent link="base_link"/>
     <child link="front_left_1"/>
-    <axis xyz="0 1 0"/>
-    <dynamics damping="0.05" friction="0.0"/>
   </joint>
-  <!-- Back wheels: differential-drive actuated — continuous rotation around Y.
-     effort limit matches the L2DB hub motors (~150 N.m each).
-     velocity limit: 10 rad/s ≈ 4.4 km/h at r=0.1215 m. -->
-  <joint name="BR_joint" type="continuous">
+  <!-- Back wheels: differential-drive actuated on the real robot (effort
+     limit matches the L2DB hub motors, ~150 N.m each; velocity limit
+     10 rad/s ~= 4.4 km/h at r=0.1215 m); fixed here for the same
+     display-only reason as the front wheels above. -->
+  <joint name="BR_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0 -0.250498  0.12285605818033218"/>
     <parent link="base_link"/>
     <child link="back_right_1"/>
-    <axis xyz="0 1 0"/>
-    <limit effort="150.0" velocity="10.0"/>
-    <dynamics damping="0.5" friction="0.1"/>
   </joint>
-  <joint name="BL_joint" type="continuous">
+  <joint name="BL_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0 0.250498  0.12285605818033218"/>
     <parent link="base_link"/>
     <child link="back_left_1"/>
-    <axis xyz="0 1 0"/>
-    <limit effort="150.0" velocity="10.0"/>
-    <dynamics damping="0.5" friction="0.1"/>
-  </joint>
-  <joint name="lidar_left_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="0.53412685915 0.24555433797836304 0.30312547385692596"/>
-    <parent link="base_link"/>
-    <child link="laser_left"/>
-  </joint>
-  <joint name="lidar_right_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="0.53412685915  -0.24555433797836304 0.30312547385692596"/>
-    <parent link="base_link"/>
-    <child link="laser_right"/>
   </joint>
   <!-- Insert at the beginning of xarm_device_macro.xacro -->
   <material name="Black">
